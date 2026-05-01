@@ -1,4 +1,4 @@
-# [AI-Assisted Application Configuration Tool]
+# AI-Assisted Application Configuration Tool
 
 This project provides a **local, AI-driven configuration management system** that allows users to modify application configuration values using **natural language**.
 
