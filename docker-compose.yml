@@ -1,0 +1,71 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: always
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: ollama-init
+    depends_on:
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ollama_data:/root/.ollama
+    entrypoint: ["ollama", "pull", "qwen2.5-coder:3b"]
+    environment:
+      - OLLAMA_HOST=ollama:11434
+
+  schema-server:
+    build:
+      context: ./schema-server
+    container_name: schema-server
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./data:/data:ro
+    restart: always
+
+  values-server:
+    build:
+      context: ./values-server
+    container_name: values-server
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./data:/data:ro
+    restart: always
+
+  bot-server:
+    build:
+      context: ./bot-server
+    container_name: bot-server
+    ports:
+      - "5003:5003"
+    depends_on:
+      ollama-init:
+        condition: service_completed_successfully
+      schema-server:
+        condition: service_started
+      values-server:
+        condition: service_started
+    restart: always
+
+volumes:
+  ollama_data:
