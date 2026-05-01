@@ -1,4 +1,7 @@
-# README.md — Design Decisions and Implementation Notes
+# AI-Assisted Configuration Tool (Local LLM + Microservices)
+
+Design Decisions and Implementation Notes
+
 
 ## Overview
 
@@ -137,9 +140,26 @@ The main takeaway from this project is that small LLMs work best when you give t
 
 I tried to keep the codebase simple. Each service is under 100 lines except the bot, and even that is mostly helper functions for JSON traversal. There's no caching, no async LLM calls, no retry logic beyond what FastAPI gives you — because for this use case, none of that is needed. The system does one thing and does it correctly.
 
-## Note on Production Usage
+## Production Considerations
 
-This project is a Proof of Concept (PoC) designed to demonstrate the feasibility of using small, local LLMs for configuration management. It is not intended for production use in its current state. The 3B model and the current architecture are optimized for speed and local testing; a real-world deployment would require additional safeguards, audit logging, and integration with a version-controlled source of truth (like Git).
+This project is a Proof of Concept (PoC) and is not intended for production use. The current design focuses on simplicity and local LLM usage.
+
+### Reliability
+- LLM output may be invalid → must be parsed and validated
+- Timeouts and retries should be added for LLM and service calls
+- Schema/Values services may be unavailable → handle failures gracefully
+- All outputs must pass JSON Schema validation before returning
+
+### Security
+- User input is treated as untrusted
+- LLM output is never executed directly
+- Changes are applied deterministically in Python
+- No arbitrary code execution is allowed
+
+### Limitations
+- Works only with predefined schemas and applications
+- No authentication, logging, or version control integration
+
 
 ----
 
