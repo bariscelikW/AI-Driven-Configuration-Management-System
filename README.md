@@ -1,8 +1,5 @@
 # AI-Assisted Configuration Tool (Local LLM + Microservices)
 
-Design Decisions and Implementation Notes
-
-
 ## Overview
 
 This project implements a local, AI-driven configuration management system composed of three microservices: a Schema Service, a Values Service, and a Bot Service. Users can modify application configuration through natural language, and the system applies those changes safely against a JSON Schema.
